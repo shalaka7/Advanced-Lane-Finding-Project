@@ -19,14 +19,14 @@ The goals / steps of this project are the following:
 [image1]: ./output_images/corners_found4.jpg/ "corner detection"
 [image2]: ./output_images/calibration3.jpg/ "original image"
 [image3]: ./output_images/calibration3_undistort.jpg/ "undistort image"
-[image4]: ./output_images/test3.jpg "Road Transformed"
-[image5]: ./output_images/tracked2_binary_result.jpg "Binary Example"
-[image6]: ./output_images/bird_eye2.jpg "perspective transform"
-[image7]: ./output_images/pathlines2.jpg "Warp Example"
-[image8]: ./output_images/drawlines2.jpg "Fit the lines "
-[image9]: ./output_images/tracked2.jpg "Output"
-[video1]: ./output1_tracked.mp4 " output Video"
-[video2]: ./output2_tracked.mp4 " output of challenge Video"
+[image4]: ./output_images/test1.jpg "Road Transformed"
+[image5]: ./output_images/preprocessImage_1.jpg "Binary Example"
+[image6]: ./output_images/warped_1.jpg "perspective transform"
+[image7]: ./output_images/v1_histogram_1.jpg "Warp Example"
+[image8]: ./output_images/histogram_cr_1.jpg "Fit the lines "
+[image9]: ./output_images/tracked_1.jpg "Output"
+[video1]: ./project_video_output.mp4 " output Video"
+
 
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
@@ -69,7 +69,7 @@ I used a combination of color and gradient thresholds to generate a binary image
 magnitude thresholding,direction thresholding.and combined all three thresholding .Applying sobel is to identify pixels 
 where the gradient of an image falls within a specified threshold range. Magnitude of gradient is to apply a threshold
 to the overall magnitude of the gradient, in both x and y.after I used that image for color thresholding
-(thresholding steps are [here](./main_image.py#L73-L130) ) 
+(thresholding steps are [here](./main_image.py#L76-L136) 
 Here's an example of my output for this step.
 
 ![alt text][image5]
@@ -78,7 +78,7 @@ Here's an example of my output for this step.
 
 The code for my perspective transform includes a function called `warper()`, which Warp an image using the perspective 
 transform.The `warper()` function takes as inputs an image (`img`), as well as source (`src`) and destination (`dst`) 
-points.In the code perspective transform (line 164 to 171)
+points.In the code perspective transform [here](./main_image.py#L169-L183)
 I chose the following source and destination points:
 
 | Source        | Destination   | 
@@ -96,17 +96,17 @@ I verified that my perspective transform was working as expected by drawing the 
 
 #### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
 
-Then I found my lane lines with a 2nd order polynomial by using [function](./main_image.py#L222-L230) kinda like this
+Then I found my lane lines with a 2nd order polynomial by using [function](./main_image.py#L299-L322) like this
 
 ![alt text][image8]
 
 #### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
-[I did this  in my code in `main_image.py`](./main_image.py#L245-L249)
+[I did this  in my code in `main_image.py`](./main_image.py#L331-L376)
 
 #### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
-[I implemented this step in my code in `main_image.py`](./main_image.py#L250-L267)
+[I implemented this step in my code in `main_image.py`](./main_image.py#L383-L402)
 Here is an example of my result on a test image:
 
 ![alt text][image9]
@@ -118,8 +118,8 @@ Here is an example of my result on a test image:
 #### 1. Provide a link to your final video output. Your pipeline should perform reasonably well on the entire project video
 
  And it works properly !!
- Here's a [link to project video result](./output1_tracked.mp4)
- Here's a [link to challenging video result](./output2_tracked.mp4)
+ Here's a [link to project video result](./project_video_output.mp4)
+
 
 
 
@@ -128,6 +128,14 @@ Here is an example of my result on a test image:
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  
 ##Where will your pipeline likely fail?  What could you do to make it more robust?
 
-I failed when sharp turn occurs it couldnot follow the path properly.Here I'll talk about the approach I took, 
-what techniques I used, what worked and why, where the pipeline might fail and 
-how I might improve it if I were going to pursue this project further.  
+problems that I faced :
+1 : The lanes lines in the challenge and harder challenge videos were extremely difficult to detect. 
+They were either too bright or too dull. This prompted me to have R & G channel thresholding and L channel thresholding
+2 : Bad Frames, The challenge video has a section where the car goes underneath a tunnel and no lanes are detected
+3 : The pipeline seems to fail for the harder challenge video. This video has sharper turns and at very short intervals.
+4 : Shadows cast by the lane divider ,Lanes lines change color these also create a problems so we have to focus on them .
+ 
+To avoid this :
+1 : Take a better perspective transform: choose a smaller section to take the transform since this video has sharper turns 
+and the lenght of a lane is shorter than the previous videos.
+2: Average over a smaller number of frames so detection of lanes changes quite fast.
