@@ -448,7 +448,7 @@ def process_image(img):
 
 
 
-output_video = 'project_video_final_2.mp4'
+output_video = 'project_video_output.mp4'
 input_video = 'project_video.mp4'
 
 clip1 = VideoFileClip(input_video)
