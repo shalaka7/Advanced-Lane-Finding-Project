@@ -378,29 +378,43 @@ def process_image(img):
         ##########################################################
 
         # Define conversions in x and y from pixels space to meters
-        ym_per_pix = 30 / 720  # 3.048/100 #meters per pixel in y dimension
-        xm_per_pix = 3.7 / 925  # 3.7/378 #meters per pixel in x dimension
+        ym_per_pix = 3.048/100 # 30 / 720  #meters per pixel in y dimension. Using dashed lines instead
+        xm_per_pix = 3.7/378 # 3.7 / 700  # meters per pixel in x dimension. Actual width of lane is not 700 pixels
 
-        y_eval = np.max(ploty)
+        # y_eval = np.max(ploty)
 
-        left_fit_cr = np.polyfit(ploty * ym_per_pix, left_fitx * xm_per_pix, 2)
-        right_fit_cr = np.polyfit(ploty * ym_per_pix, right_fitx * xm_per_pix, 2)
+        left_y_eval = np.max(lefty)
+        right_y_eval = np.max(righty)
+
+
+        left_fit_cr = np.polyfit(lefty * ym_per_pix, leftx * xm_per_pix, 2)
+        right_fit_cr = np.polyfit(righty * ym_per_pix, rightx* xm_per_pix, 2)
 
         # Calculate the new radii of curvature
-        left_curverad = ((1 + (2 * left_fit_cr[0] * y_eval * ym_per_pix + left_fit_cr[1]) ** 2) ** 1.5) / np.absolute(
-            2 * left_fit_cr[0])
-        right_curverad = ((1 + (2 * right_fit_cr[0] * y_eval * ym_per_pix + right_fit_cr[1]) ** 2) ** 1.5) / np.absolute(
-            2 * right_fit_cr[0])
+        left_curverad = ((1 + (2 * left_fit_cr[0] * left_y_eval * ym_per_pix + left_fit_cr[1]) ** 2) ** 1.5) /\
+                        np.absolute(2 * left_fit_cr[0])
+        right_curverad = ((1 + (2 * right_fit_cr[0] * right_y_eval * ym_per_pix + right_fit_cr[1]) ** 2) ** 1.5) / \
+                         np.absolute(2 * right_fit_cr[0])
 
-        avg_curverad = round(left_curverad +right_curverad // 2)
+        avg_curverad = round((left_curverad +right_curverad) // 2)
 
-        image_centre = img.shape[1] / 2
-        lane_centre = np.average((right_fitx - left_fitx) / 2)
-        centre_deviation = (image_centre - lane_centre) * xm_per_pix
+        # Using intercepts from best fit to determine midpoint and find the
+        # deviation from image centre
+        lane_centre = warped.shape[1] / 2
+        l_fit_x_int = left_line.best_fit[0] * ploty ** 2 \
+                      + left_line.best_fit[1] * ploty \
+                      + left_line.best_fit[2]
+        r_fit_x_int = right_line.best_fit[0] * ploty ** 2 \
+                      + right_line.best_fit[1] * ploty \
+                      + right_line.best_fit[2]
+        lane_center_position = (r_fit_x_int + l_fit_x_int) / 2
+        centre_deviation = (lane_centre - lane_center_position) * xm_per_pix
+        centre_deviation = np.average(centre_deviation)
+
         left_or_right = None
-        if centre_deviation < 0:
+        if centre_deviation > 0:
             left_or_right = " to right of centre"
-        elif centre_deviation > 0:
+        elif centre_deviation < 0:
             left_or_right = " to left of centre"
         else:
             left_or_right = "at centre"
@@ -434,7 +448,7 @@ def process_image(img):
 
 
 
-output_video = 'project_video_output.mp4'
+output_video = 'project_video_final_2.mp4'
 input_video = 'project_video.mp4'
 
 clip1 = VideoFileClip(input_video)
